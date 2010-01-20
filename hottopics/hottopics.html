@@ -1,0 +1,97 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+   <title>Hot Topics (PHP - Solution)</title>
+   <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+   <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/base/base.css" type="text/css">
+</head>
+<body>
+<div id="doc" class="yui-t7">
+   <div id="hd" role="banner"><h1>Hot Topics news.bbc.co.uk (XHTML/JavaScript)</h1></div>
+   <div id="bd" role="main">
+	<div class="yui-g">
+        <ul id="hottopics"><li>
+        Loading...
+         </li></ul>
+	</div>
+	</div>
+   <div id="ft" role="contentinfo"><p>Written By Adrian Statescu</p></div>
+</div>
+
+
+<script type="text/javascript">
+
+var hottopics = function() {
+
+    function init() {
+
+         var endpoint = 'http://query.yahooapis.com/v1/public/yql?q=';
+
+         var yql = 'select content from search.termextract where context in (select content from html where url="http://news.bbc.co.uk" and xpath="//table[@width=800]//a")';
+ 
+         var query = endpoint + encodeURIComponent(yql) + '&format=json&diagnostics=false&callback=hottopics.seed';
+
+         loadScript(query,function(){if(window.console){console.log('YQL:' + yql);}});
+
+    };
+
+    function seedhottopics(o) {
+
+          var res = o.query.results.Result,
+
+              all = res.length;
+
+              topics = {},
+
+              out = [] , i = 0;  
+
+              //create hash from topics to prevent repetition
+              for(var i=0;i<all;i++) {
+
+                   topics[res[i]] = res[i];
+              }  
+
+              for(var i in topics) {
+
+                  out.push(i);
+              }
+
+              var html = '<li>' + out.join('</li><li>') + '</li>';
+
+              $('hottopics').innerHTML = html;
+    };
+
+    function $(id){return document.getElementById(id);} 
+
+    function loadScript(url, callback){
+
+    var script = document.createElement("script")
+    script.type = "text/javascript";
+
+    if (script.readyState){  //IE
+        script.onreadystatechange = function(){
+            if (script.readyState == "loaded" ||
+                    script.readyState == "complete"){
+                script.onreadystatechange = null;
+                callback();
+            }
+        };
+    } else {  //Others
+        script.onload = function(){
+            callback();
+        };
+    }
+
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+    }
+
+
+    return{init:init,seed:seedhottopics};     
+}();
+
+hottopics.init();
+</script>
+</body>
+</html>
